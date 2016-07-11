@@ -1,1 +1,7 @@
 E:\BrainAcademy\HomeTasks\Airport\Airport\bin\Debug\Airport.exe.config
+D:\BrainAcademy\Airport\Airport\bin\Debug\Airport.exe.config
+D:\BrainAcademy\Airport\Airport\obj\Debug\Airport.csprojResolveAssemblyReference.cache
+D:\BrainAcademy\Airport\Airport\bin\Debug\Airport.exe
+D:\BrainAcademy\Airport\Airport\bin\Debug\Airport.pdb
+D:\BrainAcademy\Airport\Airport\obj\Debug\Airport.exe
+D:\BrainAcademy\Airport\Airport\obj\Debug\Airport.pdb
