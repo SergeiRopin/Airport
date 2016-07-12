@@ -40,7 +40,7 @@ namespace Airport
     {
         static string unexpectedNumber = "\nPlease choose a number from the menu list!";
         static string homeAirport = "Kyiv";
-        private static int i;
+        private static int loopIndex;
 
         static void Main(string[] args)
         {
@@ -155,27 +155,11 @@ namespace Airport
                         Console.WriteLine("\nThe list of Arrivals:\n");
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            if (GetActualTime() >= ArrivedFlight()[i].Time)
-                            {
-                                var status = FlightStatus.Arrived;
-                                //Console.WriteLine(ArrivedFlight()[i] + $", Status: {status};");
-                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
-
-                            }
-                            else if (GetActualTime() < ArrivedFlight()[i].Time & GetActualTime() > ArrivedFlight()[i].Time.AddHours(-3))
-                            {
-                                var status = FlightStatus.InFlight;
-                                //Console.WriteLine(ArrivedFlight()[i] + $", Status: {status};");
-                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
-
-                            }
-                            else if (GetActualTime() < ArrivedFlight()[i].Time.AddHours(-3))
-                            {
-                                var status = FlightStatus.ExpectedAt;
-                                //Console.WriteLine(ArrivedFlight()[i] + $", Status: {status}: {ArrivedFlight()[i].Time};");
+                            loopIndex = i;
+                            if (GetArrivalsStatus() == FlightStatus.ExpectedAt)
                                 Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()}: {ArrivedFlight()[i].Time};");
-
-                            }
+                            else
+                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
                         }
                         break;
 
@@ -183,31 +167,13 @@ namespace Airport
                         Console.WriteLine("\nThe list of Departures:\n");
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(5))
-                            {
-                                var status = FlightStatus.DeparturedAt;
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {status}: {DeparturedFlight()[i].Time};");
-                            }
-                            else if (GetActualTime() <= DeparturedFlight()[i].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-5))
-                            {
-                                var status = FlightStatus.GateClosed;
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                            }
-                            else if (GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-5))
-                            {
-                                var status = FlightStatus.Boarding;
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                            }
-                            else if (GetActualTime() >= DeparturedFlight()[i].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-30))
-                            {
-                                var status = FlightStatus.CheckIn;
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                            }
-                            else if (GetActualTime() < DeparturedFlight()[i].Time.AddHours(-2))
-                            {
-                                var status = "---";
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                            }
+                            loopIndex = i;
+                            if (GetDeparturesStatus() == FlightStatus.DeparturedAt)
+                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()}: {DeparturedFlight()[i].Time};");
+                            else if (GetDeparturesStatus() == null)
+                                Console.WriteLine(DeparturedFlight()[i] + $", Status: ---;");
+                            else
+                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()};");
                         }
                         break;
 
@@ -253,21 +219,21 @@ namespace Airport
 
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
+                            loopIndex = i;
                             if (flightNumber == ArrivedFlight()[i].Number)
                             {
                                 tmp++;
-                                GetArrivalsStatus();
-                                //Console.WriteLine("\n" + ArrivedFlight()[i]);
+                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
                             }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
+                            loopIndex = i;
                             if (flightNumber == DeparturedFlight()[i].Number)
                             {
                                 tmp++;
-                                GetDeparturesStatus();
-                                //Console.WriteLine("\n" + DeparturedFlight()[i]);
+                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()};");
                             }
                         }
 
@@ -275,12 +241,23 @@ namespace Airport
                         {
                             Console.WriteLine("\nNo flights with specified data!");
                         }
-
-
                         break;
 
                     case 2:
+                        Console.WriteLine("\nSpecify the time of a flight in the following format: ");
+                        Console.Write("Hours (from 0 to 23): ");
+                        int hours = (int)uint.Parse(Console.ReadLine());
+                        Console.Write("Minutes (from 0 to 59):");
+                        int minutes = (int)uint.Parse(Console.ReadLine());
+                       
+                        DateTime selectedTime = new DateTime();
+                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        {
+                            if (ArrivedFlight()[i].Time == selectedTime)
+                            { }
 
+
+                        }
                         break;
 
                     case 3:
@@ -308,54 +285,49 @@ namespace Airport
         static FlightStatus GetArrivalsStatus()
         {
             FlightStatus status = new FlightStatus();
-            for (int i = 0; i < ArrivedFlight().Length; i++)
+
+            if (GetActualTime() >= ArrivedFlight()[loopIndex].Time)
             {
-                if (GetActualTime() >= ArrivedFlight()[i].Time)
-                {
-                    status = FlightStatus.Arrived;
-                }
-                else if (GetActualTime() < ArrivedFlight()[i].Time & GetActualTime() > ArrivedFlight()[i].Time.AddHours(-3))
-                {
-                    status = FlightStatus.InFlight;
-                }
-                else if (GetActualTime() < ArrivedFlight()[i].Time.AddHours(-3))
-                {
-                    status = FlightStatus.ExpectedAt;
-                }
+                status = FlightStatus.Arrived;
             }
+            else if (GetActualTime() < ArrivedFlight()[loopIndex].Time & GetActualTime() >= ArrivedFlight()[loopIndex].Time.AddHours(-3))
+            {
+                status = FlightStatus.InFlight;
+            }
+            else if (GetActualTime() < ArrivedFlight()[loopIndex].Time.AddHours(-3))
+            {
+                status = FlightStatus.ExpectedAt;
+            }
+
             return status;
         }
 
-        static void GetDeparturesStatus()
+        static FlightStatus? GetDeparturesStatus()
         {
-            for (int i = 0; i < DeparturedFlight().Length; i++)
+            FlightStatus? status = new FlightStatus();
+
+            if (GetActualTime() > DeparturedFlight()[loopIndex].Time.AddMinutes(5))
             {
-                if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(5))
-                {
-                    var status = FlightStatus.DeparturedAt;
-                    Console.WriteLine(DeparturedFlight()[i] + $", Status: {status}: {DeparturedFlight()[i].Time};");
-                }
-                else if (GetActualTime() <= DeparturedFlight()[i].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-5))
-                {
-                    var status = FlightStatus.GateClosed;
-                    Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                }
-                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-5))
-                {
-                    var status = FlightStatus.Boarding;
-                    Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                }
-                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-30))
-                {
-                    var status = FlightStatus.CheckIn;
-                    Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                }
-                else if (GetActualTime() < DeparturedFlight()[i].Time.AddHours(-2))
-                {
-                    var status = "---";
-                    Console.WriteLine(DeparturedFlight()[i] + $", Status: {status};");
-                }
+                status = FlightStatus.DeparturedAt;
             }
+            else if (GetActualTime() <= DeparturedFlight()[loopIndex].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+            {
+                status = FlightStatus.GateClosed;
+            }
+            else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+            {
+                status = FlightStatus.Boarding;
+            }
+            else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-30))
+            {
+                status = FlightStatus.CheckIn;
+            }
+            else if (GetActualTime() < DeparturedFlight()[loopIndex].Time.AddHours(-2))
+            {
+                status = null;
+            }
+
+            return status;
         }
 
         static Flight[] ArrivedFlight()
