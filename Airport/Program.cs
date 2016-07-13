@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Airport
 {
-    enum FlightStatus
+    public enum FlightStatus
     {
         CheckIn,
         GateClosed,
@@ -17,8 +17,7 @@ namespace Airport
         ExpectedAt,
         Delayed,
         InFlight,
-        Boarding,
-        Undefined
+        Boarding
     }
 
     struct Flight
@@ -29,20 +28,26 @@ namespace Airport
         public string CityFrom;
         public string Airline;
         public char Terminal;
-        public FlightStatus Status;
-
+        public FlightStatus? Status;
         public override string ToString()
         {
-            return $"Time: {Time}, Flight: {Number}, From: {CityFrom}, To: {CityTo}, Terminal: {Terminal}, Airline: {Airline}";
+            Status = Program.status;
+            return $"Time: {Time}, Flight: {Number}, From: {CityFrom}, To: {CityTo}, Terminal: {Terminal}, Airline: {Airline}, Status: {Status}";
         }
     }
 
     public class Program
     {
-        static string unexpectedNumber = "\nPlease choose a number from the menu list!";
-        static string homeAirport = "Kyiv";
+        private static string unexpectedNumber = "\nPlease choose a number from the menu list!";
+        private static string homeAirport = "Kyiv";
         private static int loopIndex;
-        //static FlightStatus? status = new FlightStatus();
+        public static FlightStatus? status;
+
+        /// <summary>
+        /// Arrays that keep an information about canceled flights
+        /// </summary>
+        private static FlightStatus?[] statusArrived = new FlightStatus?[21];
+        private static FlightStatus?[] statusDepartured = new FlightStatus?[21];
 
         static void Main(string[] args)
         {
@@ -120,7 +125,7 @@ namespace Airport
 
         #region EditFlight() code
         /// <summary>
-        /// 
+        /// Allows to edit an information about the flight
         /// </summary>
         static void EditFlight()
         {
@@ -130,7 +135,7 @@ namespace Airport
 
         #region DeleteFlight() code
         /// <summary>
-        /// 
+        /// Allows to set the status of flight to Canceled
         /// </summary>
         static void DeleteFlight()
         {
@@ -148,11 +153,23 @@ namespace Airport
                     if (ArrivedFlight()[i].Number == index)
                     {
                         loopIndex = i;
-                        //status = FlightStatus.Canceled;
+                        statusArrived[i] = FlightStatus.Canceled;
+
+                        Console.WriteLine();
+                        Console.WriteLine($"The flight {index} has been canceled!");
                         PrintArrivals();
                     }
-                }
 
+                    if (DeparturedFlight()[i].Number == index)
+                    {
+                        loopIndex = i;
+                        statusDepartured[i] = FlightStatus.Canceled;
+
+                        Console.WriteLine();
+                        Console.WriteLine($"The flight {index} has been canceled!");
+                        PrintDepartures();
+                    }
+                }
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("\nPress \"Backpace\" to return to the main menu; press any key to cancel another flight");
                 Console.ResetColor();
@@ -336,7 +353,7 @@ namespace Airport
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
-                            if (DeparturedFlight()[i].CityFrom == city | DeparturedFlight()[i].CityTo == city)
+                            if (DeparturedFlight()[i].CityFrom == updatedCity | DeparturedFlight()[i].CityTo == updatedCity)
                             {
                                 tmp++;
                                 PrintDepartures();
@@ -398,25 +415,30 @@ namespace Airport
         /// </summary>
         static void PrintArrivals()
         {
-            FlightStatus status = new FlightStatus();
+            status = null;
 
-            if (GetActualTime() >= ArrivedFlight()[loopIndex].Time)
+            if (statusArrived[loopIndex].HasValue)
+                status = FlightStatus.Canceled;
+            else
             {
-                status = FlightStatus.Arrived;
-            }
-            else if (GetActualTime() < ArrivedFlight()[loopIndex].Time & GetActualTime() >= ArrivedFlight()[loopIndex].Time.AddHours(-3))
-            {
-                status = FlightStatus.InFlight;
-            }
-            else if (GetActualTime() < ArrivedFlight()[loopIndex].Time.AddHours(-3))
-            {
-                status = FlightStatus.ExpectedAt;
+                if (GetActualTime() >= ArrivedFlight()[loopIndex].Time)
+                {
+                    status = FlightStatus.Arrived;
+                }
+                else if (GetActualTime() < ArrivedFlight()[loopIndex].Time & GetActualTime() >= ArrivedFlight()[loopIndex].Time.AddHours(-3))
+                {
+                    status = FlightStatus.InFlight;
+                }
+                else if (GetActualTime() < ArrivedFlight()[loopIndex].Time.AddHours(-3))
+                {
+                    status = FlightStatus.ExpectedAt;
+                }
             }
 
             if (status == FlightStatus.ExpectedAt)
-                Console.WriteLine(ArrivedFlight()[loopIndex] + $", Status: {status}: {ArrivedFlight()[loopIndex].Time};");
+                Console.WriteLine(ArrivedFlight()[loopIndex] + $": {ArrivedFlight()[loopIndex].Time};");
             else
-                Console.WriteLine(ArrivedFlight()[loopIndex] + $", Status: {status};");
+                Console.WriteLine(ArrivedFlight()[loopIndex]);
         }
 
         /// <summary>
@@ -424,35 +446,40 @@ namespace Airport
         /// </summary>
         static void PrintDepartures()
         {
-            FlightStatus? status = new FlightStatus();
+            status = null;
 
-            if (GetActualTime() > DeparturedFlight()[loopIndex].Time.AddMinutes(5))
+            if (statusDepartured[loopIndex].HasValue)
+                status = FlightStatus.Canceled;
+            else
             {
-                status = FlightStatus.DeparturedAt;
-            }
-            else if (GetActualTime() <= DeparturedFlight()[loopIndex].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
-            {
-                status = FlightStatus.GateClosed;
-            }
-            else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
-            {
-                status = FlightStatus.Boarding;
-            }
-            else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-30))
-            {
-                status = FlightStatus.CheckIn;
-            }
-            else if (GetActualTime() < DeparturedFlight()[loopIndex].Time.AddHours(-2))
-            {
-                status = null;
+                if (GetActualTime() > DeparturedFlight()[loopIndex].Time.AddMinutes(5))
+                {
+                    status = FlightStatus.DeparturedAt;
+                }
+                else if (GetActualTime() <= DeparturedFlight()[loopIndex].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+                {
+                    status = FlightStatus.GateClosed;
+                }
+                else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+                {
+                    status = FlightStatus.Boarding;
+                }
+                else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-30))
+                {
+                    status = FlightStatus.CheckIn;
+                }
+                else if (GetActualTime() < DeparturedFlight()[loopIndex].Time.AddHours(-2))
+                {
+                    status = null;
+                }
             }
 
             if (status == FlightStatus.DeparturedAt)
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: {status}: {DeparturedFlight()[loopIndex].Time};");
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $": {DeparturedFlight()[loopIndex].Time};");
             else if (status == null)
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: ---;");
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $"---;");
             else
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: {status};");
+                Console.WriteLine(DeparturedFlight()[loopIndex]);
         }
 
         /// <summary>
@@ -819,7 +846,7 @@ namespace Airport
             Flight venezia = new Flight();
             venezia.Number = 337;
             venezia.Terminal = 'A';
-            venezia.Time = new DateTime(year, month, day, 21, 45, 0);
+            venezia.Time = new DateTime(year, month, day, 23, 45, 0);
             venezia.CityFrom = homeAirport;
             venezia.CityTo = "Venezia";
             venezia.Airline = "Ukraine International Airlines";
