@@ -17,7 +17,8 @@ namespace Airport
         ExpectedAt,
         Delayed,
         InFlight,
-        Boarding
+        Boarding,
+        Undefined
     }
 
     struct Flight
@@ -41,6 +42,7 @@ namespace Airport
         static string unexpectedNumber = "\nPlease choose a number from the menu list!";
         static string homeAirport = "Kyiv";
         private static int loopIndex;
+        //static FlightStatus? status = new FlightStatus();
 
         static void Main(string[] args)
         {
@@ -49,7 +51,7 @@ namespace Airport
                 Console.WindowHeight = Console.LargestWindowHeight;
                 Console.WindowWidth = Console.LargestWindowWidth;
 
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("**********AIRPORT**********\n");
                 Console.ResetColor();
                 do
@@ -104,7 +106,7 @@ namespace Airport
                         Console.ResetColor();
                     }
 
-                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine("\nPress \"Space\" to exit; press any key to return to the main menu\n");
                     Console.ResetColor();
                 }
@@ -117,7 +119,9 @@ namespace Airport
         }
 
         #region EditFlight() code
-
+        /// <summary>
+        /// 
+        /// </summary>
         static void EditFlight()
         {
 
@@ -125,20 +129,47 @@ namespace Airport
         #endregion
 
         #region DeleteFlight() code
-
+        /// <summary>
+        /// 
+        /// </summary>
         static void DeleteFlight()
         {
+            do
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\n*****Flight Cancelation menu*****\n");
+                Console.ResetColor();
 
+                Console.Write("Please type the number of flight to cancel: ");
+                int index = (int)uint.Parse(Console.ReadLine());
+
+                for (int i = 0; i < ArrivedFlight().Length; i++)
+                {
+                    if (ArrivedFlight()[i].Number == index)
+                    {
+                        loopIndex = i;
+                        //status = FlightStatus.Canceled;
+                        PrintArrivals();
+                    }
+                }
+
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("\nPress \"Backpace\" to return to the main menu; press any key to cancel another flight");
+                Console.ResetColor();
+            }
+            while (Console.ReadKey().Key != ConsoleKey.Backspace);
         }
         #endregion
 
         #region DisplayFlight() code
-
+        /// <summary>
+        /// Print an information about all arrival/departured flights
+        /// </summary>
         static void DisplayFlight()
         {
             do
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\n*****Flight Information menu*****\n");
                 Console.ResetColor();
                 Console.WriteLine(@"Please choose flights you would like to see:
@@ -156,10 +187,7 @@ namespace Airport
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
                             loopIndex = i;
-                            if (GetArrivalsStatus() == FlightStatus.ExpectedAt)
-                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()}: {ArrivedFlight()[i].Time};");
-                            else
-                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
+                            PrintArrivals();
                         }
                         break;
 
@@ -168,12 +196,7 @@ namespace Airport
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
-                            if (GetDeparturesStatus() == FlightStatus.DeparturedAt)
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()}: {DeparturedFlight()[i].Time};");
-                            else if (GetDeparturesStatus() == null)
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: ---;");
-                            else
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()};");
+                            PrintDepartures();
                         }
                         break;
 
@@ -183,7 +206,7 @@ namespace Airport
                         Console.ResetColor();
                         break;
                 }
-                Console.ForegroundColor = ConsoleColor.Green;
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("\nPress \"Backpace\" to return to the main menu; press any key to select another flights");
                 Console.ResetColor();
             }
@@ -192,38 +215,43 @@ namespace Airport
         #endregion
 
         #region SearchFlight() code
-
+        /// <summary>
+        /// Search flights by the specified criteria and print an information about ones
+        /// </summary>
         static void SearchFlight()
         {
             do
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\n*****Search Flight menu*****\n");
                 Console.ResetColor();
                 Console.WriteLine(@"Please choose one of the following menu items:
 
                 1. Search by number;
-                2. Search by time of arrival;
+                2. Search by time of arrival/departure;
                 3. Search by city;
                 4. Search all flights in this hour;");
 
                 Console.Write("Your choise: ");
                 int index = (int)uint.Parse(Console.ReadLine());
+                int tmp = new int();
+                string noMatching = "\nNo flights with specified data!";
 
                 switch (index)
                 {
                     case 1:
                         Console.Write("\nPlease enter a number of your flight: ");
                         int flightNumber = (int)uint.Parse(Console.ReadLine());
-                        int tmp = new int();
+                        Console.WriteLine();
 
+                        // Print matching flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
                             loopIndex = i;
                             if (flightNumber == ArrivedFlight()[i].Number)
                             {
                                 tmp++;
-                                Console.WriteLine(ArrivedFlight()[i] + $", Status: {GetArrivalsStatus()};");
+                                PrintArrivals();
                             }
                         }
 
@@ -233,13 +261,13 @@ namespace Airport
                             if (flightNumber == DeparturedFlight()[i].Number)
                             {
                                 tmp++;
-                                Console.WriteLine(DeparturedFlight()[i] + $", Status: {GetDeparturesStatus()};");
+                                PrintDepartures();
                             }
                         }
 
                         if (tmp == 0)
                         {
-                            Console.WriteLine("\nNo flights with specified data!");
+                            Console.WriteLine(noMatching);
                         }
                         break;
 
@@ -247,25 +275,108 @@ namespace Airport
                         Console.WriteLine("\nSpecify the time of a flight in the following format: ");
                         Console.Write("Hours (from 0 to 23): ");
                         int hours = (int)uint.Parse(Console.ReadLine());
-                        Console.Write("Minutes (from 0 to 59):");
+                        Console.Write("Minutes (from 0 to 59): ");
                         int minutes = (int)uint.Parse(Console.ReadLine());
-                       
-                        DateTime selectedTime = new DateTime();
+                        Console.WriteLine();
+
+                        // Print matching flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            if (ArrivedFlight()[i].Time == selectedTime)
-                            { }
+                            loopIndex = i;
+                            if (ArrivedFlight()[i].Time.Hour == hours && ArrivedFlight()[i].Time.Minute == minutes)
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
+                        }
 
+                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        {
+                            loopIndex = i;
+                            if (DeparturedFlight()[i].Time.Hour == hours && DeparturedFlight()[i].Time.Minute == minutes)
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+                        }
 
+                        if (tmp == 0)
+                        {
+                            Console.WriteLine(noMatching);
                         }
                         break;
 
                     case 3:
+                        Console.Write("\nPlease enter an arrival/departure city: ");
+                        string city = Console.ReadLine();
 
+                        // Convert city into the right format. First letter in upper register, others in lower.
+                        char[] cityChars = city.ToCharArray();
+                        for (int i = 0; i < cityChars.Length; i++)
+                        {
+                            cityChars[i] = char.ToLower(cityChars[i]);
+                        }
+                        char updatedChar = char.ToUpper(cityChars[0]);
+                        cityChars[0] = updatedChar;
+                        string updatedCity = new string(cityChars);
+
+                        Console.WriteLine();
+
+                        // Print matching flights.
+                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        {
+                            loopIndex = i;
+                            if (ArrivedFlight()[i].CityFrom == updatedCity | ArrivedFlight()[i].CityTo == updatedCity)
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
+                        }
+
+                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        {
+                            loopIndex = i;
+                            if (DeparturedFlight()[i].CityFrom == city | DeparturedFlight()[i].CityTo == city)
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+                        }
+
+                        if (tmp == 0)
+                        {
+                            Console.WriteLine(noMatching);
+                        }
                         break;
 
                     case 4:
+                        Console.WriteLine("\nFlights in this hour: ");
 
+                        // Print arrival flights.
+                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        {
+                            loopIndex = i;
+                            if (GetActualTime() > ArrivedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < ArrivedFlight()[i].Time.AddMinutes(30))
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
+                        }
+                        // Print departured flights.
+                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        {
+                            loopIndex = i;
+                            if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(30))
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+                        }
+
+                        if (tmp == 0)
+                        {
+                            Console.WriteLine(noMatching);
+                        }
                         break;
 
                     default:
@@ -274,7 +385,7 @@ namespace Airport
                         Console.ResetColor();
                         break;
                 }
-                Console.ForegroundColor = ConsoleColor.Green;
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("\nPress \"Backpace\" to return to the main menu; press any key to search another flight");
                 Console.ResetColor();
             }
@@ -282,7 +393,10 @@ namespace Airport
         }
         #endregion
 
-        static FlightStatus GetArrivalsStatus()
+        /// <summary>
+        /// Define the status of arravil fligths and print flight information.
+        /// </summary>
+        static void PrintArrivals()
         {
             FlightStatus status = new FlightStatus();
 
@@ -299,10 +413,16 @@ namespace Airport
                 status = FlightStatus.ExpectedAt;
             }
 
-            return status;
+            if (status == FlightStatus.ExpectedAt)
+                Console.WriteLine(ArrivedFlight()[loopIndex] + $", Status: {status}: {ArrivedFlight()[loopIndex].Time};");
+            else
+                Console.WriteLine(ArrivedFlight()[loopIndex] + $", Status: {status};");
         }
 
-        static FlightStatus? GetDeparturesStatus()
+        /// <summary>
+        /// Define the status of departured fligths and print flight information.
+        /// </summary>
+        static void PrintDepartures()
         {
             FlightStatus? status = new FlightStatus();
 
@@ -327,9 +447,18 @@ namespace Airport
                 status = null;
             }
 
-            return status;
+            if (status == FlightStatus.DeparturedAt)
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: {status}: {DeparturedFlight()[loopIndex].Time};");
+            else if (status == null)
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: ---;");
+            else
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $", Status: {status};");
         }
 
+        /// <summary>
+        /// Initialize an array of arrival Flights
+        /// </summary>
+        /// <returns>an array of Flight</returns>
         static Flight[] ArrivedFlight()
         {
             #region Arrived flights
@@ -367,7 +496,7 @@ namespace Airport
             amsterdam.Terminal = 'A';
             amsterdam.Time = new DateTime(year, month, day, 03, 20, 0);
             amsterdam.CityFrom = "Amsterdam";
-            beijing.CityTo = homeAirport;
+            amsterdam.CityTo = homeAirport;
             amsterdam.Airline = "Ukraine International Airlines";
 
             Flight antalya = new Flight();
@@ -399,7 +528,7 @@ namespace Airport
             zaporizhia.Terminal = 'B';
             zaporizhia.Time = new DateTime(year, month, day, 07, 30, 0);
             zaporizhia.CityFrom = "Zaporizhia";
-            beijing.CityTo = homeAirport;
+            zaporizhia.CityTo = homeAirport;
             zaporizhia.Airline = "KLM Royal Dutch Airlines";
 
             Flight yerevan = new Flight();
@@ -415,7 +544,7 @@ namespace Airport
             baku.Terminal = 'D';
             baku.Time = new DateTime(year, month, day, 07, 50, 0);
             baku.CityFrom = "Baku";
-            beijing.CityTo = homeAirport;
+            baku.CityTo = homeAirport;
             baku.Airline = "Azerbaijan Hava Yollary";
 
             Flight tbilisi = new Flight();
@@ -447,7 +576,7 @@ namespace Airport
             kharkiv.Terminal = 'B';
             kharkiv.Time = new DateTime(year, month, day, 12, 30, 0);
             kharkiv.CityFrom = "Kharkiv";
-            beijing.CityTo = homeAirport;
+            kharkiv.CityTo = homeAirport;
             kharkiv.Airline = "Ukraine International Airlines";
 
             Flight istanbul = new Flight();
@@ -515,6 +644,10 @@ namespace Airport
             return arrivedFlight;
         }
 
+        /// <summary>
+        /// Initialize an array of departured Flights
+        /// </summary>
+        /// <returns>an array of Flight</returns>
         static Flight[] DeparturedFlight()
         {
             #region Departured flights
@@ -701,6 +834,10 @@ namespace Airport
             return departuredFlight;
         }
 
+        /// <summary>
+        /// Create an instance of DateTime.Now
+        /// </summary>
+        /// <returns>current time</returns>
         static DateTime GetActualTime()
         {
             DateTime now = DateTime.Now;
