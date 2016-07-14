@@ -56,11 +56,6 @@ namespace Airport
         private static string homeAirport = "Kyiv";
 
         /// <summary>
-        /// Field that pass to PrintArrivals/Departures methods the number of Flight in array
-        /// </summary>
-        private static int loopIndex;
-
-        /// <summary>
         /// Field that keeps the flight status
         /// </summary>
         public static FlightStatus? status;
@@ -180,10 +175,8 @@ namespace Airport
                 {
                     if (ArrivedFlight()[i].Number == index)
                     {
-                        loopIndex = i;
-
                         Console.WriteLine("\nActual flight information:");
-                        PrintArrivals();
+                        PrintArrivals(i);
 
                         // Time updating.
                         Console.WriteLine("\nPlease enter a new Time in the following format: ");
@@ -224,16 +217,14 @@ namespace Airport
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
-                        PrintArrivals();
+                        PrintArrivals(i);
                         break;
                     }
 
                     else if (DeparturedFlight()[i].Number == index)
                     {
-                        loopIndex = i;
-
                         Console.WriteLine("\nActual flight information:");
-                        PrintDepartures();
+                        PrintDepartures(i);
 
                         // Time updating.
                         Console.WriteLine("\nPlease enter a new Time in the following format: ");
@@ -274,7 +265,7 @@ namespace Airport
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
-                        PrintDepartures();
+                        PrintDepartures(i);
                         break;
                     }
                 }
@@ -306,22 +297,20 @@ namespace Airport
                 {
                     if (ArrivedFlight()[i].Number == index | editArrived[i].Number == index)
                     {
-                        loopIndex = i;
                         canceledArrived[i] = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
-                        PrintArrivals();
+                        PrintArrivals(i);
                     }
 
                     if (DeparturedFlight()[i].Number == index | editDepartured[i].Number == index)
                     {
-                        loopIndex = i;
                         canceledDepartured[i] = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
-                        PrintDepartures();
+                        PrintDepartures(i);
                     }
                 }
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -357,8 +346,7 @@ namespace Airport
                         Console.WriteLine("\nThe list of Arrivals:\n");
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            loopIndex = i;
-                            PrintArrivals();
+                            PrintArrivals(i);
                         }
                         break;
 
@@ -366,8 +354,7 @@ namespace Airport
                         Console.WriteLine("\nThe list of Departures:\n");
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            loopIndex = i;
-                            PrintDepartures();
+                            PrintDepartures(i);
                         }
                         break;
 
@@ -418,21 +405,19 @@ namespace Airport
                         // Print matching flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (flightNumber == ArrivedFlight()[i].Number | flightNumber == editArrived[i].Number)
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (flightNumber == DeparturedFlight()[i].Number | flightNumber == editDepartured[i].Number)
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
                         }
 
@@ -453,33 +438,31 @@ namespace Airport
                         // Print matching flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (ArrivedFlight()[i].Time.Hour == hours && ArrivedFlight()[i].Time.Minute == minutes)
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
 
                             if (editArrived[i].Time.Hour == hours && editArrived[i].Time.Minute == minutes)
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (DeparturedFlight()[i].Time.Hour == hours && DeparturedFlight()[i].Time.Minute == minutes)
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
 
                             if (editDepartured[i].Time.Hour == hours && editDepartured[i].Time.Minute == minutes)
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
                         }
 
@@ -508,33 +491,31 @@ namespace Airport
                         // Print matching flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (ArrivedFlight()[i].CityFrom == updatedCity | ArrivedFlight()[i].CityTo == updatedCity)
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
 
                             if (editArrived[i].CityFrom == updatedCity | editArrived[i].CityTo == updatedCity)
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (DeparturedFlight()[i].CityFrom == updatedCity | DeparturedFlight()[i].CityTo == updatedCity)
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
 
                             if (editDepartured[i].CityFrom == updatedCity | editDepartured[i].CityTo == updatedCity)
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
                         }
 
@@ -550,34 +531,32 @@ namespace Airport
                         // Print arrival flights.
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (GetActualTime() > ArrivedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < ArrivedFlight()[i].Time.AddMinutes(30))
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
 
                             if (GetActualTime() > editArrived[i].Time.AddMinutes(-30) & GetActualTime() < editArrived[i].Time.AddMinutes(30))
                             {
                                 tmp++;
-                                PrintArrivals();
+                                PrintArrivals(i);
                             }
 
                         }
                         // Print departured flights.
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
-                            loopIndex = i;
                             if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(30))
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
 
                             if (GetActualTime() > editDepartured[i].Time.AddMinutes(-30) & GetActualTime() < editDepartured[i].Time.AddMinutes(30))
                             {
                                 tmp++;
-                                PrintDepartures();
+                                PrintDepartures(i);
                             }
                         }
 
@@ -604,24 +583,24 @@ namespace Airport
         /// <summary>
         /// Define the status of arrived fligths and print flight information.
         /// </summary>
-        static void PrintArrivals()
+        static void PrintArrivals(int i)
         {
             status = null;
             updatedCityFrom = null;
 
             // Block for edited flights.
-            if (editArrived[loopIndex].CityFrom != null)
+            if (editArrived[i].CityFrom != null)
             {
-                updatedTime = editArrived[loopIndex].Time;
-                updatedCityFrom = editArrived[loopIndex].CityFrom;
-                updatedCityTo = editArrived[loopIndex].CityTo;
-                updatedTerminal = editArrived[loopIndex].Terminal;
-                updatedAirline = editArrived[loopIndex].Airline;
-                updatedNumber = editArrived[loopIndex].Number;
+                updatedTime = editArrived[i].Time;
+                updatedCityFrom = editArrived[i].CityFrom;
+                updatedCityTo = editArrived[i].CityTo;
+                updatedTerminal = editArrived[i].Terminal;
+                updatedAirline = editArrived[i].Airline;
+                updatedNumber = editArrived[i].Number;
             }
 
             // Define the status of the arrived flights depending on real time and flight time.
-            if (canceledArrived[loopIndex].HasValue)
+            if (canceledArrived[i].HasValue)
             {
                 status = FlightStatus.Canceled;
             }
@@ -642,49 +621,49 @@ namespace Airport
             }
             else
             {
-                if (GetActualTime() >= ArrivedFlight()[loopIndex].Time)
+                if (GetActualTime() >= ArrivedFlight()[i].Time)
                 {
                     status = FlightStatus.Arrived;
                 }
-                else if (GetActualTime() < ArrivedFlight()[loopIndex].Time & GetActualTime() >= ArrivedFlight()[loopIndex].Time.AddHours(-3))
+                else if (GetActualTime() < ArrivedFlight()[i].Time & GetActualTime() >= ArrivedFlight()[i].Time.AddHours(-3))
                 {
                     status = FlightStatus.InFlight;
                 }
-                else if (GetActualTime() < ArrivedFlight()[loopIndex].Time.AddHours(-3))
+                else if (GetActualTime() < ArrivedFlight()[i].Time.AddHours(-3))
                 {
                     status = FlightStatus.ExpectedAt;
                 }
             }
 
             if (status == FlightStatus.ExpectedAt & updatedCityFrom != null)
-                Console.WriteLine(ArrivedFlight()[loopIndex] + $": {updatedTime};");
+                Console.WriteLine(ArrivedFlight()[i] + $": {updatedTime};");
             else if (status == FlightStatus.ExpectedAt)
-                Console.WriteLine(ArrivedFlight()[loopIndex] + $": {ArrivedFlight()[loopIndex].Time};");
+                Console.WriteLine(ArrivedFlight()[i] + $": {ArrivedFlight()[i].Time};");
             else
-                Console.WriteLine(ArrivedFlight()[loopIndex]);
+                Console.WriteLine(ArrivedFlight()[i]);
         }
 
         /// <summary>
         /// Define the status of departured fligths and print flight information.
         /// </summary>
-        static void PrintDepartures()
+        static void PrintDepartures(int i)
         {
             status = null;
             updatedCityFrom = null;
 
             // Block for edited flights.
-            if (editDepartured[loopIndex].CityFrom != null)
+            if (editDepartured[i].CityFrom != null)
             {
-                updatedTime = editDepartured[loopIndex].Time;
-                updatedCityFrom = editDepartured[loopIndex].CityFrom;
-                updatedCityTo = editDepartured[loopIndex].CityTo;
-                updatedTerminal = editDepartured[loopIndex].Terminal;
-                updatedAirline = editDepartured[loopIndex].Airline;
-                updatedNumber = editDepartured[loopIndex].Number;
+                updatedTime = editDepartured[i].Time;
+                updatedCityFrom = editDepartured[i].CityFrom;
+                updatedCityTo = editDepartured[i].CityTo;
+                updatedTerminal = editDepartured[i].Terminal;
+                updatedAirline = editDepartured[i].Airline;
+                updatedNumber = editDepartured[i].Number;
             }
 
             // Define the status of the departured flights depending on real time and flight time.
-            if (canceledDepartured[loopIndex].HasValue)
+            if (canceledDepartured[i].HasValue)
             {
                 status = FlightStatus.Canceled;
             }
@@ -713,36 +692,36 @@ namespace Airport
             }
             else
             {
-                if (GetActualTime() > DeparturedFlight()[loopIndex].Time.AddMinutes(5))
+                if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(5))
                 {
                     status = FlightStatus.DeparturedAt;
                 }
-                else if (GetActualTime() <= DeparturedFlight()[loopIndex].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+                else if (GetActualTime() <= DeparturedFlight()[i].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-5))
                 {
                     status = FlightStatus.GateClosed;
                 }
-                else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-5))
+                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-5))
                 {
                     status = FlightStatus.Boarding;
                 }
-                else if (GetActualTime() >= DeparturedFlight()[loopIndex].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[loopIndex].Time.AddMinutes(-30))
+                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-30))
                 {
                     status = FlightStatus.CheckIn;
                 }
-                else if (GetActualTime() < DeparturedFlight()[loopIndex].Time.AddHours(-2))
+                else if (GetActualTime() < DeparturedFlight()[i].Time.AddHours(-2))
                 {
                     status = null;
                 }
             }
 
             if (status == FlightStatus.DeparturedAt & updatedCityFrom != null)
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $": {updatedTime};");
+                Console.WriteLine(DeparturedFlight()[i] + $": {updatedTime};");
             else if (status == FlightStatus.DeparturedAt)
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $": {DeparturedFlight()[loopIndex].Time};");
+                Console.WriteLine(DeparturedFlight()[i] + $": {DeparturedFlight()[i].Time};");
             else if (status == null)
-                Console.WriteLine(DeparturedFlight()[loopIndex] + $"---;");
+                Console.WriteLine(DeparturedFlight()[i] + $"---;");
             else
-                Console.WriteLine(DeparturedFlight()[loopIndex]);
+                Console.WriteLine(DeparturedFlight()[i]);
         }
 
         /// <summary>
