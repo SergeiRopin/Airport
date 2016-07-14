@@ -27,11 +27,25 @@ namespace Airport
         public string CityTo;
         public string CityFrom;
         public string Airline;
-        public char Terminal;
+        public string Terminal;
         public FlightStatus? Status;
+
         public override string ToString()
         {
-            Status = Program.status;
+            if (Program.updatedCityFrom != null)
+            {
+                Time = Program.updatedTime;
+                CityTo = Program.updatedCityTo;
+                CityFrom = Program.updatedCityFrom;
+                Airline = Program.updatedAirline;
+                Terminal = Program.updatedTerminal;
+                Number = Program.updatedNumber;
+                Status = Program.status;
+            }
+            else
+            {
+                Status = Program.status;
+            }
             return $"Time: {Time}, Flight: {Number}, From: {CityFrom}, To: {CityTo}, Terminal: {Terminal}, Airline: {Airline}, Status: {Status}";
         }
     }
@@ -40,14 +54,38 @@ namespace Airport
     {
         private static string unexpectedNumber = "\nPlease choose a number from the menu list!";
         private static string homeAirport = "Kyiv";
+
+        /// <summary>
+        /// Field that pass to PrintArrivals/Departures methods the number of Flight in array
+        /// </summary>
         private static int loopIndex;
+
+        /// <summary>
+        /// Field that keeps the flight status
+        /// </summary>
         public static FlightStatus? status;
 
         /// <summary>
         /// Arrays that keep an information about canceled flights
         /// </summary>
-        private static FlightStatus?[] statusArrived = new FlightStatus?[21];
-        private static FlightStatus?[] statusDepartured = new FlightStatus?[21];
+        private static FlightStatus?[] canceledArrived = new FlightStatus?[21];
+        private static FlightStatus?[] canceledDepartured = new FlightStatus?[21];
+
+        /// <summary>
+        /// Arrays that keep an information about edited flights
+        /// </summary>
+        private static Flight[] editArrived = new Flight[21];
+        private static Flight[] editDepartured = new Flight[21];
+
+        /// <summary>
+        /// Fields that keep an information about edited flights
+        /// </summary>
+        public static DateTime updatedTime;
+        public static string updatedCityFrom;
+        public static string updatedCityTo;
+        public static string updatedTerminal;
+        public static string updatedAirline;
+        public static int updatedNumber;
 
         static void Main(string[] args)
         {
@@ -101,7 +139,7 @@ namespace Airport
                     catch (OverflowException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\nPositive value is expected!");
+                        Console.WriteLine("\nUnexpected value has been entered!");
                         Console.ResetColor();
                     }
                     catch (Exception ex)
@@ -129,6 +167,122 @@ namespace Airport
         /// </summary>
         static void EditFlight()
         {
+            do
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\n*****Flight Edit menu*****\n");
+                Console.ResetColor();
+
+                Console.Write("Please type the number of flight to edit: ");
+                int index = (int)uint.Parse(Console.ReadLine());
+
+                for (int i = 0; i < ArrivedFlight().Length; i++)
+                {
+                    if (ArrivedFlight()[i].Number == index)
+                    {
+                        loopIndex = i;
+
+                        Console.WriteLine("\nActual flight information:");
+                        PrintArrivals();
+
+                        // Time updating.
+                        Console.WriteLine("\nPlease enter a new Time in the following format: ");
+                        Console.Write("Hours (from 0 to 23): ");
+                        int hours = (int)uint.Parse(Console.ReadLine());
+                        Console.Write("Minutes (from 0 to 59): ");
+                        int minutes = (int)uint.Parse(Console.ReadLine());
+
+                        int year = GetActualTime().Year;
+                        int month = GetActualTime().Month;
+                        int day = GetActualTime().Day;
+                        editArrived[i].Time = new DateTime(year, month, day, hours, minutes, 00);
+
+                        // CityFrom updating.
+                        Console.Write("\nPlease enter a new City From: ");
+                        string cityFromEdit = Console.ReadLine();
+                        editArrived[i].CityFrom = cityFromEdit;
+
+                        // CityTo updating.
+                        Console.Write("\nPlease enter a new City To: ");
+                        string cityToEdit = Console.ReadLine();
+                        editArrived[i].CityTo = cityToEdit;
+
+                        // Terminal updating.
+                        Console.Write("\nPlease enter a new Terminal: ");
+                        string terminalEdit = Console.ReadLine();
+                        editArrived[i].Terminal = terminalEdit;
+
+                        // Airline updating.
+                        Console.Write("\nPlease enter a new Airline: ");
+                        string airlineEdit = Console.ReadLine();
+                        editArrived[i].Airline = airlineEdit;
+
+                        // Flight number updating
+                        Console.Write("\nPlease enter a new flight Number: ");
+                        int numberEdit = (int)uint.Parse(Console.ReadLine());
+                        editArrived[i].Number = numberEdit;
+
+                        Console.WriteLine();
+                        Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
+                        PrintArrivals();
+                        break;
+                    }
+
+                    else if (DeparturedFlight()[i].Number == index)
+                    {
+                        loopIndex = i;
+
+                        Console.WriteLine("\nActual flight information:");
+                        PrintDepartures();
+
+                        // Time updating.
+                        Console.WriteLine("\nPlease enter a new Time in the following format: ");
+                        Console.Write("Hours (from 0 to 23): ");
+                        int hours = (int)uint.Parse(Console.ReadLine());
+                        Console.Write("Minutes (from 0 to 59): ");
+                        int minutes = (int)uint.Parse(Console.ReadLine());
+
+                        int year = GetActualTime().Year;
+                        int month = GetActualTime().Month;
+                        int day = GetActualTime().Day;
+                        editDepartured[i].Time = new DateTime(year, month, day, hours, minutes, 00);
+
+                        // CityFrom updating.
+                        Console.Write("\nPlease enter a new City From: ");
+                        string cityFromEdit = Console.ReadLine();
+                        editDepartured[i].CityFrom = cityFromEdit;
+
+                        // CityTo updating.
+                        Console.Write("\nPlease enter a new City To: ");
+                        string cityToEdit = Console.ReadLine();
+                        editDepartured[i].CityTo = cityToEdit;
+
+                        // Terminal updating.
+                        Console.Write("\nPlease enter a new Terminal: ");
+                        string terminalEdit = Console.ReadLine();
+                        editDepartured[i].Terminal = terminalEdit;
+
+                        // Airline updating.
+                        Console.Write("\nPlease enter a new Airline: ");
+                        string airlineEdit = Console.ReadLine();
+                        editDepartured[i].Airline = airlineEdit;
+
+                        // Flight number updating
+                        Console.Write("\nPlease enter a new flight Number: ");
+                        int numberEdit = (int)uint.Parse(Console.ReadLine());
+                        editDepartured[i].Number = numberEdit;
+
+                        Console.WriteLine();
+                        Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
+                        PrintDepartures();
+                        break;
+                    }
+                }
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("\nPress \"Backpace\" to return to the main menu; press any key to edit another flight");
+                Console.ResetColor();
+            }
+            while (Console.ReadKey().Key != ConsoleKey.Backspace);
 
         }
         #endregion
@@ -150,20 +304,20 @@ namespace Airport
 
                 for (int i = 0; i < ArrivedFlight().Length; i++)
                 {
-                    if (ArrivedFlight()[i].Number == index)
+                    if (ArrivedFlight()[i].Number == index | editArrived[i].Number == index)
                     {
                         loopIndex = i;
-                        statusArrived[i] = FlightStatus.Canceled;
+                        canceledArrived[i] = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
                         PrintArrivals();
                     }
 
-                    if (DeparturedFlight()[i].Number == index)
+                    if (DeparturedFlight()[i].Number == index | editDepartured[i].Number == index)
                     {
                         loopIndex = i;
-                        statusDepartured[i] = FlightStatus.Canceled;
+                        canceledDepartured[i] = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
@@ -265,7 +419,7 @@ namespace Airport
                         for (int i = 0; i < ArrivedFlight().Length; i++)
                         {
                             loopIndex = i;
-                            if (flightNumber == ArrivedFlight()[i].Number)
+                            if (flightNumber == ArrivedFlight()[i].Number | flightNumber == editArrived[i].Number)
                             {
                                 tmp++;
                                 PrintArrivals();
@@ -275,7 +429,7 @@ namespace Airport
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
-                            if (flightNumber == DeparturedFlight()[i].Number)
+                            if (flightNumber == DeparturedFlight()[i].Number | flightNumber == editDepartured[i].Number)
                             {
                                 tmp++;
                                 PrintDepartures();
@@ -305,12 +459,24 @@ namespace Airport
                                 tmp++;
                                 PrintArrivals();
                             }
+
+                            if (editArrived[i].Time.Hour == hours && editArrived[i].Time.Minute == minutes)
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
                             if (DeparturedFlight()[i].Time.Hour == hours && DeparturedFlight()[i].Time.Minute == minutes)
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+
+                            if (editDepartured[i].Time.Hour == hours && editDepartured[i].Time.Minute == minutes)
                             {
                                 tmp++;
                                 PrintDepartures();
@@ -348,12 +514,24 @@ namespace Airport
                                 tmp++;
                                 PrintArrivals();
                             }
+
+                            if (editArrived[i].CityFrom == updatedCity | editArrived[i].CityTo == updatedCity)
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
                         }
 
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
                             if (DeparturedFlight()[i].CityFrom == updatedCity | DeparturedFlight()[i].CityTo == updatedCity)
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+
+                            if (editDepartured[i].CityFrom == updatedCity | editDepartured[i].CityTo == updatedCity)
                             {
                                 tmp++;
                                 PrintDepartures();
@@ -378,12 +556,25 @@ namespace Airport
                                 tmp++;
                                 PrintArrivals();
                             }
+
+                            if (GetActualTime() > editArrived[i].Time.AddMinutes(-30) & GetActualTime() < editArrived[i].Time.AddMinutes(30))
+                            {
+                                tmp++;
+                                PrintArrivals();
+                            }
+
                         }
                         // Print departured flights.
                         for (int i = 0; i < DeparturedFlight().Length; i++)
                         {
                             loopIndex = i;
                             if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(30))
+                            {
+                                tmp++;
+                                PrintDepartures();
+                            }
+
+                            if (GetActualTime() > editDepartured[i].Time.AddMinutes(-30) & GetActualTime() < editDepartured[i].Time.AddMinutes(30))
                             {
                                 tmp++;
                                 PrintDepartures();
@@ -411,14 +602,44 @@ namespace Airport
         #endregion
 
         /// <summary>
-        /// Define the status of arravil fligths and print flight information.
+        /// Define the status of arrived fligths and print flight information.
         /// </summary>
         static void PrintArrivals()
         {
             status = null;
+            updatedCityFrom = null;
 
-            if (statusArrived[loopIndex].HasValue)
+            // Block for edited flights.
+            if (editArrived[loopIndex].CityFrom != null)
+            {
+                updatedTime = editArrived[loopIndex].Time;
+                updatedCityFrom = editArrived[loopIndex].CityFrom;
+                updatedCityTo = editArrived[loopIndex].CityTo;
+                updatedTerminal = editArrived[loopIndex].Terminal;
+                updatedAirline = editArrived[loopIndex].Airline;
+                updatedNumber = editArrived[loopIndex].Number;
+            }
+
+            // Define the status of the arrived flights depending on real time and flight time.
+            if (canceledArrived[loopIndex].HasValue)
+            {
                 status = FlightStatus.Canceled;
+            }
+            else if (updatedCityFrom != null)
+            {
+                if (GetActualTime() >= updatedTime)
+                {
+                    status = FlightStatus.Arrived;
+                }
+                else if (GetActualTime() < updatedTime & GetActualTime() >= updatedTime.AddHours(-3))
+                {
+                    status = FlightStatus.InFlight;
+                }
+                else if (GetActualTime() < updatedTime.AddHours(-3))
+                {
+                    status = FlightStatus.ExpectedAt;
+                }
+            }
             else
             {
                 if (GetActualTime() >= ArrivedFlight()[loopIndex].Time)
@@ -435,7 +656,9 @@ namespace Airport
                 }
             }
 
-            if (status == FlightStatus.ExpectedAt)
+            if (status == FlightStatus.ExpectedAt & updatedCityFrom != null)
+                Console.WriteLine(ArrivedFlight()[loopIndex] + $": {updatedTime};");
+            else if (status == FlightStatus.ExpectedAt)
                 Console.WriteLine(ArrivedFlight()[loopIndex] + $": {ArrivedFlight()[loopIndex].Time};");
             else
                 Console.WriteLine(ArrivedFlight()[loopIndex]);
@@ -447,9 +670,47 @@ namespace Airport
         static void PrintDepartures()
         {
             status = null;
+            updatedCityFrom = null;
 
-            if (statusDepartured[loopIndex].HasValue)
+            // Block for edited flights.
+            if (editDepartured[loopIndex].CityFrom != null)
+            {
+                updatedTime = editDepartured[loopIndex].Time;
+                updatedCityFrom = editDepartured[loopIndex].CityFrom;
+                updatedCityTo = editDepartured[loopIndex].CityTo;
+                updatedTerminal = editDepartured[loopIndex].Terminal;
+                updatedAirline = editDepartured[loopIndex].Airline;
+                updatedNumber = editDepartured[loopIndex].Number;
+            }
+
+            // Define the status of the departured flights depending on real time and flight time.
+            if (canceledDepartured[loopIndex].HasValue)
+            {
                 status = FlightStatus.Canceled;
+            }
+            else if (updatedCityFrom != null)
+            {
+                if (GetActualTime() > updatedTime.AddMinutes(5))
+                {
+                    status = FlightStatus.DeparturedAt;
+                }
+                else if (GetActualTime() <= updatedTime.AddMinutes(5) & GetActualTime() >= updatedTime.AddMinutes(-5))
+                {
+                    status = FlightStatus.GateClosed;
+                }
+                else if (GetActualTime() >= updatedTime.AddMinutes(-30) & GetActualTime() < updatedTime.AddMinutes(-5))
+                {
+                    status = FlightStatus.Boarding;
+                }
+                else if (GetActualTime() >= updatedTime.AddHours(-2) & GetActualTime() < updatedTime.AddMinutes(-30))
+                {
+                    status = FlightStatus.CheckIn;
+                }
+                else if (GetActualTime() < updatedTime.AddHours(-2))
+                {
+                    status = null;
+                }
+            }
             else
             {
                 if (GetActualTime() > DeparturedFlight()[loopIndex].Time.AddMinutes(5))
@@ -474,7 +735,9 @@ namespace Airport
                 }
             }
 
-            if (status == FlightStatus.DeparturedAt)
+            if (status == FlightStatus.DeparturedAt & updatedCityFrom != null)
+                Console.WriteLine(DeparturedFlight()[loopIndex] + $": {updatedTime};");
+            else if (status == FlightStatus.DeparturedAt)
                 Console.WriteLine(DeparturedFlight()[loopIndex] + $": {DeparturedFlight()[loopIndex].Time};");
             else if (status == null)
                 Console.WriteLine(DeparturedFlight()[loopIndex] + $"---;");
@@ -496,7 +759,7 @@ namespace Airport
 
             Flight beijing = new Flight();
             beijing.Number = 288;
-            beijing.Terminal = 'A';
+            beijing.Terminal = "A";
             beijing.Time = new DateTime(year, month, day, 00, 35, 0);
             beijing.CityFrom = "Beijing";
             beijing.CityTo = homeAirport;
@@ -504,7 +767,7 @@ namespace Airport
 
             Flight almaty = new Flight();
             almaty.Number = 537;
-            almaty.Terminal = 'D';
+            almaty.Terminal = "D";
             almaty.Time = new DateTime(year, month, day, 01, 15, 0);
             almaty.CityFrom = "Almaty";
             almaty.CityTo = homeAirport;
@@ -512,7 +775,7 @@ namespace Airport
 
             Flight telAviv = new Flight();
             telAviv.Number = 778;
-            telAviv.Terminal = 'A';
+            telAviv.Terminal = "A";
             telAviv.Time = new DateTime(year, month, day, 02, 45, 0);
             telAviv.CityFrom = "Tel-Aviv";
             telAviv.CityTo = homeAirport;
@@ -520,7 +783,7 @@ namespace Airport
 
             Flight amsterdam = new Flight();
             amsterdam.Number = 106;
-            amsterdam.Terminal = 'A';
+            amsterdam.Terminal = "A";
             amsterdam.Time = new DateTime(year, month, day, 03, 20, 0);
             amsterdam.CityFrom = "Amsterdam";
             amsterdam.CityTo = homeAirport;
@@ -528,7 +791,7 @@ namespace Airport
 
             Flight antalya = new Flight();
             antalya.Number = 5412;
-            antalya.Terminal = 'A';
+            antalya.Terminal = "A";
             antalya.Time = new DateTime(year, month, day, 04, 00, 0);
             antalya.CityFrom = "Antalya";
             antalya.CityTo = homeAirport;
@@ -536,7 +799,7 @@ namespace Airport
 
             Flight barcelona = new Flight();
             barcelona.Number = 7152;
-            barcelona.Terminal = 'A';
+            barcelona.Terminal = "A";
             barcelona.Time = new DateTime(year, month, day, 04, 15, 0);
             barcelona.CityFrom = "Barcelona";
             barcelona.CityTo = homeAirport;
@@ -544,7 +807,7 @@ namespace Airport
 
             Flight london = new Flight();
             london.Number = 114;
-            london.Terminal = 'A';
+            london.Terminal = "A";
             london.Time = new DateTime(year, month, day, 05, 20, 0);
             london.CityFrom = "London";
             london.CityTo = homeAirport;
@@ -552,7 +815,7 @@ namespace Airport
 
             Flight zaporizhia = new Flight();
             zaporizhia.Number = 3144;
-            zaporizhia.Terminal = 'B';
+            zaporizhia.Terminal = "B";
             zaporizhia.Time = new DateTime(year, month, day, 07, 30, 0);
             zaporizhia.CityFrom = "Zaporizhia";
             zaporizhia.CityTo = homeAirport;
@@ -560,7 +823,7 @@ namespace Airport
 
             Flight yerevan = new Flight();
             yerevan.Number = 612;
-            yerevan.Terminal = 'D';
+            yerevan.Terminal = "D";
             yerevan.Time = new DateTime(year, month, day, 07, 50, 0);
             yerevan.CityFrom = "Yerevan";
             yerevan.CityTo = homeAirport;
@@ -568,7 +831,7 @@ namespace Airport
 
             Flight baku = new Flight();
             baku.Number = 6602;
-            baku.Terminal = 'D';
+            baku.Terminal = "D";
             baku.Time = new DateTime(year, month, day, 07, 50, 0);
             baku.CityFrom = "Baku";
             baku.CityTo = homeAirport;
@@ -576,7 +839,7 @@ namespace Airport
 
             Flight tbilisi = new Flight();
             tbilisi.Number = 3140;
-            tbilisi.Terminal = 'D';
+            tbilisi.Terminal = "D";
             tbilisi.Time = new DateTime(year, month, day, 09, 50, 0);
             tbilisi.CityFrom = "Tbilisi";
             tbilisi.CityTo = homeAirport;
@@ -584,7 +847,7 @@ namespace Airport
 
             Flight kutaisi = new Flight();
             kutaisi.Number = 506;
-            kutaisi.Terminal = 'D';
+            kutaisi.Terminal = "D";
             kutaisi.Time = new DateTime(year, month, day, 10, 55, 0);
             kutaisi.CityFrom = "Kutaisi";
             kutaisi.CityTo = homeAirport;
@@ -592,7 +855,7 @@ namespace Airport
 
             Flight dnipropetrovsk = new Flight();
             dnipropetrovsk.Number = 3130;
-            dnipropetrovsk.Terminal = 'B';
+            dnipropetrovsk.Terminal = "B";
             dnipropetrovsk.Time = new DateTime(year, month, day, 12, 00, 0);
             dnipropetrovsk.CityFrom = "Dnipropetrovsk";
             dnipropetrovsk.CityTo = homeAirport;
@@ -600,7 +863,7 @@ namespace Airport
 
             Flight kharkiv = new Flight();
             kharkiv.Number = 24;
-            kharkiv.Terminal = 'B';
+            kharkiv.Terminal = "B";
             kharkiv.Time = new DateTime(year, month, day, 12, 30, 0);
             kharkiv.CityFrom = "Kharkiv";
             kharkiv.CityTo = homeAirport;
@@ -608,7 +871,7 @@ namespace Airport
 
             Flight istanbul = new Flight();
             istanbul.Number = 716;
-            istanbul.Terminal = 'A';
+            istanbul.Terminal = "A";
             istanbul.Time = new DateTime(year, month, day, 14, 15, 0);
             istanbul.CityFrom = "Istanbul";
             istanbul.CityTo = homeAirport;
@@ -616,7 +879,7 @@ namespace Airport
 
             Flight minsk = new Flight();
             minsk.Number = 894;
-            minsk.Terminal = 'D';
+            minsk.Terminal = "D";
             minsk.Time = new DateTime(year, month, day, 16, 30, 0);
             minsk.CityFrom = "Minsk";
             minsk.CityTo = homeAirport;
@@ -624,7 +887,7 @@ namespace Airport
 
             Flight dubai = new Flight();
             dubai.Number = 374;
-            dubai.Terminal = 'A';
+            dubai.Terminal = "A";
             dubai.Time = new DateTime(year, month, day, 17, 00, 0);
             dubai.CityFrom = "Dubai";
             dubai.CityTo = homeAirport;
@@ -632,7 +895,7 @@ namespace Airport
 
             Flight teheran = new Flight();
             teheran.Number = 752;
-            teheran.Terminal = 'A';
+            teheran.Terminal = "A";
             teheran.Time = new DateTime(year, month, day, 18, 00, 0);
             teheran.CityFrom = "Teheran";
             teheran.CityTo = homeAirport;
@@ -640,7 +903,7 @@ namespace Airport
 
             Flight larnaca = new Flight();
             larnaca.Number = 344;
-            larnaca.Terminal = 'A';
+            larnaca.Terminal = "A";
             larnaca.Time = new DateTime(year, month, day, 20, 50, 0);
             larnaca.CityFrom = "Larnaca";
             larnaca.CityTo = homeAirport;
@@ -648,7 +911,7 @@ namespace Airport
 
             Flight venezia = new Flight();
             venezia.Number = 336;
-            venezia.Terminal = 'A';
+            venezia.Terminal = "A";
             venezia.Time = new DateTime(year, month, day, 21, 15, 0);
             venezia.CityFrom = "Venezia";
             venezia.CityTo = homeAirport;
@@ -656,7 +919,7 @@ namespace Airport
 
             Flight chisinau = new Flight();
             chisinau.Number = 9898;
-            chisinau.Terminal = 'D';
+            chisinau.Terminal = "D";
             chisinau.Time = new DateTime(year, month, day, 23, 30, 0);
             chisinau.CityFrom = "Chisinau";
             chisinau.CityTo = homeAirport;
@@ -685,7 +948,7 @@ namespace Airport
 
             Flight chisinau = new Flight();
             chisinau.Number = 9899;
-            chisinau.Terminal = 'D';
+            chisinau.Terminal = "D";
             chisinau.Time = new DateTime(year, month, day, 00, 00, 0);
             chisinau.CityFrom = homeAirport;
             chisinau.CityTo = "Chisinau";
@@ -693,7 +956,7 @@ namespace Airport
 
             Flight beijing = new Flight();
             beijing.Number = 289;
-            beijing.Terminal = 'A';
+            beijing.Terminal = "A";
             beijing.Time = new DateTime(year, month, day, 01, 05, 0);
             beijing.CityFrom = homeAirport;
             beijing.CityTo = "Beijing";
@@ -701,7 +964,7 @@ namespace Airport
 
             Flight almaty = new Flight();
             almaty.Number = 538;
-            almaty.Terminal = 'D';
+            almaty.Terminal = "D";
             almaty.Time = new DateTime(year, month, day, 01, 45, 0);
             almaty.CityFrom = homeAirport;
             almaty.CityTo = "Almaty";
@@ -709,7 +972,7 @@ namespace Airport
 
             Flight telAviv = new Flight();
             telAviv.Number = 779;
-            telAviv.Terminal = 'A';
+            telAviv.Terminal = "A";
             telAviv.Time = new DateTime(year, month, day, 03, 15, 0);
             telAviv.CityFrom = homeAirport;
             telAviv.CityTo = "Tel-Aviv";
@@ -717,7 +980,7 @@ namespace Airport
 
             Flight amsterdam = new Flight();
             amsterdam.Number = 107;
-            amsterdam.Terminal = 'A';
+            amsterdam.Terminal = "A";
             amsterdam.Time = new DateTime(year, month, day, 03, 50, 0);
             amsterdam.CityFrom = homeAirport;
             amsterdam.CityTo = "Amsterdam";
@@ -725,7 +988,7 @@ namespace Airport
 
             Flight antalya = new Flight();
             antalya.Number = 5413;
-            antalya.Terminal = 'A';
+            antalya.Terminal = "A";
             antalya.Time = new DateTime(year, month, day, 04, 30, 0);
             antalya.CityFrom = homeAirport;
             antalya.CityTo = "Antalya";
@@ -733,7 +996,7 @@ namespace Airport
 
             Flight barcelona = new Flight();
             barcelona.Number = 7153;
-            barcelona.Terminal = 'A';
+            barcelona.Terminal = "A";
             barcelona.Time = new DateTime(year, month, day, 04, 45, 0);
             barcelona.CityFrom = homeAirport;
             barcelona.CityTo = "Barcelona";
@@ -741,7 +1004,7 @@ namespace Airport
 
             Flight london = new Flight();
             london.Number = 115;
-            london.Terminal = 'A';
+            london.Terminal = "A";
             london.Time = new DateTime(year, month, day, 05, 50, 0);
             london.CityFrom = homeAirport;
             london.CityTo = "London";
@@ -749,7 +1012,7 @@ namespace Airport
 
             Flight zaporizhia = new Flight();
             zaporizhia.Number = 3145;
-            zaporizhia.Terminal = 'B';
+            zaporizhia.Terminal = "B";
             zaporizhia.Time = new DateTime(year, month, day, 08, 00, 0);
             zaporizhia.CityFrom = homeAirport;
             zaporizhia.CityTo = "Zaporizhia";
@@ -757,7 +1020,7 @@ namespace Airport
 
             Flight yerevan = new Flight();
             yerevan.Number = 613;
-            yerevan.Terminal = 'D';
+            yerevan.Terminal = "D";
             yerevan.Time = new DateTime(year, month, day, 08, 20, 0);
             yerevan.CityFrom = homeAirport;
             yerevan.CityTo = "Yerevan";
@@ -765,7 +1028,7 @@ namespace Airport
 
             Flight baku = new Flight();
             baku.Number = 6603;
-            baku.Terminal = 'D';
+            baku.Terminal = "D";
             baku.Time = new DateTime(year, month, day, 08, 30, 0);
             baku.CityFrom = homeAirport;
             baku.CityTo = "Baku";
@@ -773,7 +1036,7 @@ namespace Airport
 
             Flight tbilisi = new Flight();
             tbilisi.Number = 3141;
-            tbilisi.Terminal = 'D';
+            tbilisi.Terminal = "D";
             tbilisi.Time = new DateTime(year, month, day, 10, 20, 0);
             tbilisi.CityFrom = homeAirport;
             tbilisi.CityTo = "Tbilisi";
@@ -781,7 +1044,7 @@ namespace Airport
 
             Flight kutaisi = new Flight();
             kutaisi.Number = 507;
-            kutaisi.Terminal = 'D';
+            kutaisi.Terminal = "D";
             kutaisi.Time = new DateTime(year, month, day, 11, 25, 0);
             kutaisi.CityFrom = homeAirport;
             kutaisi.CityTo = "Kutaisi";
@@ -789,7 +1052,7 @@ namespace Airport
 
             Flight dnipropetrovsk = new Flight();
             dnipropetrovsk.Number = 3131;
-            dnipropetrovsk.Terminal = 'B';
+            dnipropetrovsk.Terminal = "B";
             dnipropetrovsk.Time = new DateTime(year, month, day, 12, 30, 0);
             dnipropetrovsk.CityFrom = homeAirport;
             dnipropetrovsk.CityTo = "Dnipropetrovsk";
@@ -797,7 +1060,7 @@ namespace Airport
 
             Flight kharkiv = new Flight();
             kharkiv.Number = 25;
-            kharkiv.Terminal = 'B';
+            kharkiv.Terminal = "B";
             kharkiv.Time = new DateTime(year, month, day, 13, 00, 0);
             kharkiv.CityFrom = homeAirport;
             kharkiv.CityTo = "Kharkiv";
@@ -805,7 +1068,7 @@ namespace Airport
 
             Flight istanbul = new Flight();
             istanbul.Number = 717;
-            istanbul.Terminal = 'A';
+            istanbul.Terminal = "A";
             istanbul.Time = new DateTime(year, month, day, 14, 45, 0);
             istanbul.CityFrom = homeAirport;
             istanbul.CityTo = "Istanbul";
@@ -813,7 +1076,7 @@ namespace Airport
 
             Flight minsk = new Flight();
             minsk.Number = 895;
-            minsk.Terminal = 'D';
+            minsk.Terminal = "D";
             minsk.Time = new DateTime(year, month, day, 17, 00, 0);
             minsk.CityFrom = homeAirport;
             minsk.CityTo = "Minsk";
@@ -821,7 +1084,7 @@ namespace Airport
 
             Flight dubai = new Flight();
             dubai.Number = 375;
-            dubai.Terminal = 'A';
+            dubai.Terminal = "A";
             dubai.Time = new DateTime(year, month, day, 17, 30, 0);
             dubai.CityFrom = homeAirport;
             dubai.CityTo = "Dubai";
@@ -829,7 +1092,7 @@ namespace Airport
 
             Flight teheran = new Flight();
             teheran.Number = 753;
-            teheran.Terminal = 'A';
+            teheran.Terminal = "A";
             teheran.Time = new DateTime(year, month, day, 18, 30, 0);
             teheran.CityFrom = homeAirport;
             teheran.CityTo = "Teheran";
@@ -837,7 +1100,7 @@ namespace Airport
 
             Flight larnaca = new Flight();
             larnaca.Number = 345;
-            larnaca.Terminal = 'A';
+            larnaca.Terminal = "A";
             larnaca.Time = new DateTime(year, month, day, 21, 20, 0);
             larnaca.CityFrom = homeAirport;
             larnaca.CityTo = "Larnaca";
@@ -845,7 +1108,7 @@ namespace Airport
 
             Flight venezia = new Flight();
             venezia.Number = 337;
-            venezia.Terminal = 'A';
+            venezia.Terminal = "A";
             venezia.Time = new DateTime(year, month, day, 23, 45, 0);
             venezia.CityFrom = homeAirport;
             venezia.CityTo = "Venezia";
