@@ -40,8 +40,9 @@ namespace Airport
                 Airline = Program.updatedAirline;
                 Terminal = Program.updatedTerminal;
                 Number = Program.updatedNumber;
-                Status = Program.status;
+                Status = Program.updatedStatus;
             }
+            else if (Program.ca != null)
             else
             {
                 Status = Program.status;
@@ -659,14 +660,14 @@ namespace Airport
             {
                 status = FlightStatus.Canceled;
             }
-            else if (updatedCityFrom != null | updatedCityTo != null)
-            {
-                status = updatedStatus;
-            }
-            else
-            {
-                status = ArrivedFlight()[i].Status;
-            }
+            //else if (updatedCityFrom != null | updatedCityTo != null)
+            //{
+            //    status = updatedStatus;
+            //}
+            //else
+            //{
+            //    status = ArrivedFlight()[i].Status;
+            //}
 
             if (status == FlightStatus.ExpectedAt & (updatedCityFrom != null | updatedCityTo != null))
                 Console.WriteLine(ArrivedFlight()[i] + $": {updatedTime};");
