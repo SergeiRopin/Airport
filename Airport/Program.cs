@@ -42,8 +42,7 @@ namespace Airport
                 Number = Program.updatedNumber;
                 Status = Program.updatedStatus;
             }
-            else if (Program.ca != null)
-            else
+            else if (Program.status != null)
             {
                 Status = Program.status;
             }
