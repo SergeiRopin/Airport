@@ -32,7 +32,7 @@ namespace Airport
 
         public override string ToString()
         {
-            if (Program.updatedCityFrom != null)
+            if (Program.updatedStatus != null)
             {
                 Time = Program.updatedTime;
                 CityTo = Program.updatedCityTo;
@@ -42,9 +42,10 @@ namespace Airport
                 Number = Program.updatedNumber;
                 Status = Program.updatedStatus;
             }
-            else if (Program.status != null)
+
+            if (Program.canceledStatus != null)
             {
-                Status = Program.status;
+                Status = Program.canceledStatus;
             }
             return $"Time: {Time}, Flight: {Number}, From: {CityFrom}, To: {CityTo}, Terminal: {Terminal}, Airline: {Airline}, Status: {Status}";
         }
@@ -58,7 +59,7 @@ namespace Airport
         /// <summary>
         /// Field that keeps the flight status
         /// </summary>
-        public static FlightStatus? status;
+        public static FlightStatus? canceledStatus;
 
         /// <summary>
         /// Arrays that keep an information about canceled flights
@@ -315,6 +316,58 @@ namespace Airport
                         Console.Write("\nPlease enter a new flight Number: ");
                         int numberEdit = (int)uint.Parse(Console.ReadLine());
                         editDepartured[i].Number = numberEdit;
+
+                        // Status updating.
+                        Console.WriteLine();
+                        Console.WriteLine(@"Please enter a new flight Status. Choose a number from the following List:
+                        1. CheckIn,
+                        2. GateClosed,
+                        3. Arrived,
+                        4. DeparturedAt,
+                        5. Unknown,
+                        6. Canceled,
+                        7. ExpectedAt,
+                        8. Delayed,
+                        9. InFlight,
+                        10. Boarding");
+                        Console.Write("Please enter a number: ");
+                        int statusEdit = (int)uint.Parse(Console.ReadLine());
+                        switch (statusEdit)
+                        {
+                            case 1:
+                                editDepartured[i].Status = FlightStatus.CheckIn;
+                                break;
+                            case 2:
+                                editDepartured[i].Status = FlightStatus.GateClosed;
+                                break;
+                            case 3:
+                                editDepartured[i].Status = FlightStatus.Arrived;
+                                break;
+                            case 4:
+                                editDepartured[i].Status = FlightStatus.DeparturedAt;
+                                break;
+                            case 5:
+                                editDepartured[i].Status = FlightStatus.Unknown;
+                                break;
+                            case 6:
+                                editDepartured[i].Status = FlightStatus.Canceled;
+                                break;
+                            case 7:
+                                editDepartured[i].Status = FlightStatus.ExpectedAt;
+                                break;
+                            case 8:
+                                editDepartured[i].Status = FlightStatus.Delayed;
+                                break;
+                            case 9:
+                                editDepartured[i].Status = FlightStatus.InFlight;
+                                break;
+                            case 10:
+                                editDepartured[i].Status = FlightStatus.Boarding;
+                                break;
+                            default:
+                                Console.WriteLine(unexpectedNumber);
+                                break;
+                        }
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
@@ -634,16 +687,15 @@ namespace Airport
         #endregion
 
         /// <summary>
-        /// Define the status of arrived fligths and print flight information.
+        /// Set flight info for edited and canceled flights and print flight info about arrived flights.
         /// </summary>
         static void PrintArrivals(int i)
         {
-            status = null;
-            updatedCityFrom = null;
-            updatedCityTo = null;
+            canceledStatus = null;
+            updatedStatus = null;
 
-            // Block for edited flights.
-            if (editArrived[i].CityFrom != null | editArrived[i].CityTo != null)
+            // Assign values to fields for edited flights.
+            if (editArrived[i].Status != null)
             {
                 updatedTime = editArrived[i].Time;
                 updatedCityFrom = editArrived[i].CityFrom;
@@ -654,23 +706,16 @@ namespace Airport
                 updatedStatus = editArrived[i].Status;
             }
 
-            // Define the status of the arrived flights depending on the canceled and edited flights.
+            // Assign the status for canceled flights.
             if (canceledArrived[i].HasValue)
             {
-                status = FlightStatus.Canceled;
+                canceledStatus = FlightStatus.Canceled;
             }
-            //else if (updatedCityFrom != null | updatedCityTo != null)
-            //{
-            //    status = updatedStatus;
-            //}
-            //else
-            //{
-            //    status = ArrivedFlight()[i].Status;
-            //}
 
-            if (status == FlightStatus.ExpectedAt & (updatedCityFrom != null | updatedCityTo != null))
+            // Print flight information depending on edited and canceled flight.
+            if (updatedStatus == FlightStatus.ExpectedAt & canceledStatus == null)
                 Console.WriteLine(ArrivedFlight()[i] + $": {updatedTime};");
-            else if (status == FlightStatus.ExpectedAt)
+            else if (ArrivedFlight()[i].Status == FlightStatus.ExpectedAt & updatedStatus == null)
                 Console.WriteLine(ArrivedFlight()[i] + $": {ArrivedFlight()[i].Time};");
             else
                 Console.WriteLine(ArrivedFlight()[i]);
@@ -681,10 +726,10 @@ namespace Airport
         /// </summary>
         static void PrintDepartures(int i)
         {
-            status = null;
-            updatedCityFrom = null;
+            canceledStatus = null;
+            updatedStatus = null;
 
-            // Block for edited flights.
+            // Assign values to fields for edited flights.
             if (editDepartured[i].CityFrom != null)
             {
                 updatedTime = editDepartured[i].Time;
@@ -693,66 +738,19 @@ namespace Airport
                 updatedTerminal = editDepartured[i].Terminal;
                 updatedAirline = editDepartured[i].Airline;
                 updatedNumber = editDepartured[i].Number;
+                updatedStatus = editDepartured[i].Status;
             }
 
-            // Define the status of the departured flights depending on real time and flight time.
+            // Assign the status for canceled flights.
             if (canceledDepartured[i].HasValue)
             {
-                status = FlightStatus.Canceled;
-            }
-            else if (updatedCityFrom != null)
-            {
-                if (GetActualTime() > updatedTime.AddMinutes(5))
-                {
-                    status = FlightStatus.DeparturedAt;
-                }
-                else if (GetActualTime() <= updatedTime.AddMinutes(5) & GetActualTime() >= updatedTime.AddMinutes(-5))
-                {
-                    status = FlightStatus.GateClosed;
-                }
-                else if (GetActualTime() >= updatedTime.AddMinutes(-30) & GetActualTime() < updatedTime.AddMinutes(-5))
-                {
-                    status = FlightStatus.Boarding;
-                }
-                else if (GetActualTime() >= updatedTime.AddHours(-2) & GetActualTime() < updatedTime.AddMinutes(-30))
-                {
-                    status = FlightStatus.CheckIn;
-                }
-                else if (GetActualTime() < updatedTime.AddHours(-2))
-                {
-                    status = null;
-                }
-            }
-            else
-            {
-                if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(5))
-                {
-                    status = FlightStatus.DeparturedAt;
-                }
-                else if (GetActualTime() <= DeparturedFlight()[i].Time.AddMinutes(5) & GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-5))
-                {
-                    status = FlightStatus.GateClosed;
-                }
-                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-5))
-                {
-                    status = FlightStatus.Boarding;
-                }
-                else if (GetActualTime() >= DeparturedFlight()[i].Time.AddHours(-2) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(-30))
-                {
-                    status = FlightStatus.CheckIn;
-                }
-                else if (GetActualTime() < DeparturedFlight()[i].Time.AddHours(-2))
-                {
-                    status = null;
-                }
+                canceledStatus = FlightStatus.Canceled;
             }
 
-            if (status == FlightStatus.DeparturedAt & updatedCityFrom != null)
+            if (updatedStatus == FlightStatus.DeparturedAt & canceledStatus == null)
                 Console.WriteLine(DeparturedFlight()[i] + $": {updatedTime};");
-            else if (status == FlightStatus.DeparturedAt)
+            else if (DeparturedFlight()[i].Status == FlightStatus.DeparturedAt & updatedStatus == null)
                 Console.WriteLine(DeparturedFlight()[i] + $": {DeparturedFlight()[i].Time};");
-            else if (status == null)
-                Console.WriteLine(DeparturedFlight()[i] + $"---;");
             else
                 Console.WriteLine(DeparturedFlight()[i]);
         }
