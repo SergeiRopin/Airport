@@ -20,7 +20,7 @@ namespace Airport
         Boarding
     }
 
-    struct Flight
+    public struct Flight
     {
         public DateTime Time;
         public int Number;
@@ -32,21 +32,6 @@ namespace Airport
 
         public override string ToString()
         {
-            if (Program.updatedStatus != null)
-            {
-                Time = Program.updatedTime;
-                CityTo = Program.updatedCityTo;
-                CityFrom = Program.updatedCityFrom;
-                Airline = Program.updatedAirline;
-                Terminal = Program.updatedTerminal;
-                Number = Program.updatedNumber;
-                Status = Program.updatedStatus;
-            }
-
-            if (Program.canceledStatus != null)
-            {
-                Status = Program.canceledStatus;
-            }
             return $"Time: {Time}, Flight: {Number}, From: {CityFrom}, To: {CityTo}, Terminal: {Terminal}, Airline: {Airline}, Status: {Status}";
         }
     }
@@ -57,37 +42,23 @@ namespace Airport
         private static string homeAirport = "Kyiv";
 
         /// <summary>
-        /// Field that keeps the flight status
+        /// Copy of initialized array of arrivals
         /// </summary>
-        public static FlightStatus? canceledStatus;
+        private static Flight[] arrivedFlights;
 
         /// <summary>
-        /// Arrays that keep an information about canceled flights
+        /// Copy of initialized array of departures
         /// </summary>
-        private static FlightStatus?[] canceledArrived = new FlightStatus?[21];
-        private static FlightStatus?[] canceledDepartured = new FlightStatus?[21];
-
-        /// <summary>
-        /// Arrays that keep an information about edited flights
-        /// </summary>
-        private static Flight[] editArrived = new Flight[21];
-        private static Flight[] editDepartured = new Flight[21];
-
-        /// <summary>
-        /// Fields that keep an information about edited flights
-        /// </summary>
-        public static DateTime updatedTime;
-        public static string updatedCityFrom;
-        public static string updatedCityTo;
-        public static string updatedTerminal;
-        public static string updatedAirline;
-        public static int updatedNumber;
-        public static FlightStatus? updatedStatus;
+        private static Flight[] departuredFlights;
 
         static void Main(string[] args)
         {
             try
             {
+                // Flights initialization.
+                ArrivedFlightsInitialization();
+                DeparturedFlightsInitialization();
+
                 Console.WindowHeight = Console.LargestWindowHeight;
                 Console.WindowWidth = Console.LargestWindowWidth;
 
@@ -107,7 +78,6 @@ namespace Airport
                     {
                         Console.Write("Your choise: ");
                         int index = (int)uint.Parse(Console.ReadLine());
-
                         switch (index)
                         {
                             case 1:
@@ -160,7 +130,7 @@ namespace Airport
 
         #region EditFlight() code
         /// <summary>
-        /// Allows to edit an information about the flight
+        /// Editing an information about the flight
         /// </summary>
         static void EditFlight()
         {
@@ -173,9 +143,9 @@ namespace Airport
                 Console.Write("Please type the number of flight to edit: ");
                 int index = (int)uint.Parse(Console.ReadLine());
 
-                for (int i = 0; i < ArrivedFlight().Length; i++)
+                for (int i = 0; i < arrivedFlights.Length; i++)
                 {
-                    if (ArrivedFlight()[i].Number == index)
+                    if (arrivedFlights[i].Number == index)
                     {
                         Console.WriteLine("\nActual flight information:");
                         PrintArrivals(i);
@@ -190,32 +160,32 @@ namespace Airport
                         int year = GetActualTime().Year;
                         int month = GetActualTime().Month;
                         int day = GetActualTime().Day;
-                        editArrived[i].Time = new DateTime(year, month, day, hours, minutes, 00);
+                        arrivedFlights[i].Time = new DateTime(year, month, day, hours, minutes, 00);
 
                         // CityFrom updating.
                         Console.Write("\nPlease enter a new City From: ");
                         string cityFromEdit = Console.ReadLine();
-                        editArrived[i].CityFrom = cityFromEdit;
+                        arrivedFlights[i].CityFrom = cityFromEdit;
 
                         // CityTo updating.
                         Console.Write("\nPlease enter a new City To: ");
                         string cityToEdit = Console.ReadLine();
-                        editArrived[i].CityTo = cityToEdit;
+                        arrivedFlights[i].CityTo = cityToEdit;
 
                         // Terminal updating.
                         Console.Write("\nPlease enter a new Terminal: ");
                         string terminalEdit = Console.ReadLine();
-                        editArrived[i].Terminal = terminalEdit;
+                        arrivedFlights[i].Terminal = terminalEdit;
 
                         // Airline updating.
                         Console.Write("\nPlease enter a new Airline: ");
                         string airlineEdit = Console.ReadLine();
-                        editArrived[i].Airline = airlineEdit;
+                        arrivedFlights[i].Airline = airlineEdit;
 
                         // Flight number updating.
                         Console.Write("\nPlease enter a new flight Number: ");
                         int numberEdit = (int)uint.Parse(Console.ReadLine());
-                        editArrived[i].Number = numberEdit;
+                        arrivedFlights[i].Number = numberEdit;
 
                         //Status updating.
                         Console.WriteLine();
@@ -235,47 +205,46 @@ namespace Airport
                         switch (statusEdit)
                         {
                             case 1:
-                                editArrived[i].Status = FlightStatus.CheckIn;
+                                arrivedFlights[i].Status = FlightStatus.CheckIn;
                                 break;
                             case 2:
-                                editArrived[i].Status = FlightStatus.GateClosed;
+                                arrivedFlights[i].Status = FlightStatus.GateClosed;
                                 break;
                             case 3:
-                                editArrived[i].Status = FlightStatus.Arrived;
+                                arrivedFlights[i].Status = FlightStatus.Arrived;
                                 break;
                             case 4:
-                                editArrived[i].Status = FlightStatus.DeparturedAt;
+                                arrivedFlights[i].Status = FlightStatus.DeparturedAt;
                                 break;
                             case 5:
-                                editArrived[i].Status = FlightStatus.Unknown;
+                                arrivedFlights[i].Status = FlightStatus.Unknown;
                                 break;
                             case 6:
-                                editArrived[i].Status = FlightStatus.Canceled;
+                                arrivedFlights[i].Status = FlightStatus.Canceled;
                                 break;
                             case 7:
-                                editArrived[i].Status = FlightStatus.ExpectedAt;
+                                arrivedFlights[i].Status = FlightStatus.ExpectedAt;
                                 break;
                             case 8:
-                                editArrived[i].Status = FlightStatus.Delayed;
+                                arrivedFlights[i].Status = FlightStatus.Delayed;
                                 break;
                             case 9:
-                                editArrived[i].Status = FlightStatus.InFlight;
+                                arrivedFlights[i].Status = FlightStatus.InFlight;
                                 break;
                             case 10:
-                                editArrived[i].Status = FlightStatus.Boarding;
+                                arrivedFlights[i].Status = FlightStatus.Boarding;
                                 break;
                             default:
                                 Console.WriteLine(unexpectedNumber);
                                 break;
                         }
-
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
                         PrintArrivals(i);
                         break;
                     }
 
-                    else if (DeparturedFlight()[i].Number == index)
+                    else if (departuredFlights[i].Number == index)
                     {
                         Console.WriteLine("\nActual flight information:");
                         PrintDepartures(i);
@@ -290,32 +259,32 @@ namespace Airport
                         int year = GetActualTime().Year;
                         int month = GetActualTime().Month;
                         int day = GetActualTime().Day;
-                        editDepartured[i].Time = new DateTime(year, month, day, hours, minutes, 00);
+                        departuredFlights[i].Time = new DateTime(year, month, day, hours, minutes, 00);
 
                         // CityFrom updating.
                         Console.Write("\nPlease enter a new City From: ");
                         string cityFromEdit = Console.ReadLine();
-                        editDepartured[i].CityFrom = cityFromEdit;
+                        departuredFlights[i].CityFrom = cityFromEdit;
 
                         // CityTo updating.
                         Console.Write("\nPlease enter a new City To: ");
                         string cityToEdit = Console.ReadLine();
-                        editDepartured[i].CityTo = cityToEdit;
+                        departuredFlights[i].CityTo = cityToEdit;
 
                         // Terminal updating.
                         Console.Write("\nPlease enter a new Terminal: ");
                         string terminalEdit = Console.ReadLine();
-                        editDepartured[i].Terminal = terminalEdit;
+                        departuredFlights[i].Terminal = terminalEdit;
 
                         // Airline updating.
                         Console.Write("\nPlease enter a new Airline: ");
                         string airlineEdit = Console.ReadLine();
-                        editDepartured[i].Airline = airlineEdit;
+                        departuredFlights[i].Airline = airlineEdit;
 
                         // Flight number updating
                         Console.Write("\nPlease enter a new flight Number: ");
                         int numberEdit = (int)uint.Parse(Console.ReadLine());
-                        editDepartured[i].Number = numberEdit;
+                        departuredFlights[i].Number = numberEdit;
 
                         // Status updating.
                         Console.WriteLine();
@@ -335,40 +304,39 @@ namespace Airport
                         switch (statusEdit)
                         {
                             case 1:
-                                editDepartured[i].Status = FlightStatus.CheckIn;
+                                departuredFlights[i].Status = FlightStatus.CheckIn;
                                 break;
                             case 2:
-                                editDepartured[i].Status = FlightStatus.GateClosed;
+                                departuredFlights[i].Status = FlightStatus.GateClosed;
                                 break;
                             case 3:
-                                editDepartured[i].Status = FlightStatus.Arrived;
+                                departuredFlights[i].Status = FlightStatus.Arrived;
                                 break;
                             case 4:
-                                editDepartured[i].Status = FlightStatus.DeparturedAt;
+                                departuredFlights[i].Status = FlightStatus.DeparturedAt;
                                 break;
                             case 5:
-                                editDepartured[i].Status = FlightStatus.Unknown;
+                                departuredFlights[i].Status = FlightStatus.Unknown;
                                 break;
                             case 6:
-                                editDepartured[i].Status = FlightStatus.Canceled;
+                                departuredFlights[i].Status = FlightStatus.Canceled;
                                 break;
                             case 7:
-                                editDepartured[i].Status = FlightStatus.ExpectedAt;
+                                departuredFlights[i].Status = FlightStatus.ExpectedAt;
                                 break;
                             case 8:
-                                editDepartured[i].Status = FlightStatus.Delayed;
+                                departuredFlights[i].Status = FlightStatus.Delayed;
                                 break;
                             case 9:
-                                editDepartured[i].Status = FlightStatus.InFlight;
+                                departuredFlights[i].Status = FlightStatus.InFlight;
                                 break;
                             case 10:
-                                editDepartured[i].Status = FlightStatus.Boarding;
+                                departuredFlights[i].Status = FlightStatus.Boarding;
                                 break;
                             default:
                                 Console.WriteLine(unexpectedNumber);
                                 break;
                         }
-
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been edited to flight {numberEdit}!");
                         PrintDepartures(i);
@@ -380,7 +348,6 @@ namespace Airport
                 Console.ResetColor();
             }
             while (Console.ReadKey().Key != ConsoleKey.Backspace);
-
         }
         #endregion
 
@@ -399,20 +366,20 @@ namespace Airport
                 Console.Write("Please type the number of flight to cancel: ");
                 int index = (int)uint.Parse(Console.ReadLine());
 
-                for (int i = 0; i < ArrivedFlight().Length; i++)
+                for (int i = 0; i < arrivedFlights.Length; i++)
                 {
-                    if (ArrivedFlight()[i].Number == index | editArrived[i].Number == index)
+                    if (arrivedFlights[i].Number == index)
                     {
-                        canceledArrived[i] = FlightStatus.Canceled;
+                        arrivedFlights[i].Status = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
                         PrintArrivals(i);
                     }
 
-                    if (DeparturedFlight()[i].Number == index | editDepartured[i].Number == index)
+                    if (departuredFlights[i].Number == index)
                     {
-                        canceledDepartured[i] = FlightStatus.Canceled;
+                        departuredFlights[i].Status = FlightStatus.Canceled;
 
                         Console.WriteLine();
                         Console.WriteLine($"The flight {index} has been canceled!");
@@ -450,7 +417,7 @@ namespace Airport
                 {
                     case 1:
                         Console.WriteLine("\nThe list of Arrivals:\n");
-                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        for (int i = 0; i < arrivedFlights.Length; i++)
                         {
                             PrintArrivals(i);
                         }
@@ -458,7 +425,7 @@ namespace Airport
 
                     case 2:
                         Console.WriteLine("\nThe list of Departures:\n");
-                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        for (int i = 0; i < departuredFlights.Length; i++)
                         {
                             PrintDepartures(i);
                         }
@@ -509,18 +476,18 @@ namespace Airport
                         Console.WriteLine();
 
                         // Print matching flights.
-                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        for (int i = 0; i < arrivedFlights.Length; i++)
                         {
-                            if (flightNumber == ArrivedFlight()[i].Number | flightNumber == editArrived[i].Number)
+                            if (flightNumber == arrivedFlights[i].Number)
                             {
                                 tmp++;
                                 PrintArrivals(i);
                             }
                         }
 
-                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        for (int i = 0; i < departuredFlights.Length; i++)
                         {
-                            if (flightNumber == DeparturedFlight()[i].Number | flightNumber == editDepartured[i].Number)
+                            if (flightNumber == departuredFlights[i].Number)
                             {
                                 tmp++;
                                 PrintDepartures(i);
@@ -542,30 +509,18 @@ namespace Airport
                         Console.WriteLine();
 
                         // Print matching flights.
-                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        for (int i = 0; i < arrivedFlights.Length; i++)
                         {
-                            if (ArrivedFlight()[i].Time.Hour == hours && ArrivedFlight()[i].Time.Minute == minutes)
-                            {
-                                tmp++;
-                                PrintArrivals(i);
-                            }
-
-                            if (editArrived[i].Time.Hour == hours && editArrived[i].Time.Minute == minutes)
+                            if (arrivedFlights[i].Time.Hour == hours && arrivedFlights[i].Time.Minute == minutes)
                             {
                                 tmp++;
                                 PrintArrivals(i);
                             }
                         }
 
-                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        for (int i = 0; i < departuredFlights.Length; i++)
                         {
-                            if (DeparturedFlight()[i].Time.Hour == hours && DeparturedFlight()[i].Time.Minute == minutes)
-                            {
-                                tmp++;
-                                PrintDepartures(i);
-                            }
-
-                            if (editDepartured[i].Time.Hour == hours && editDepartured[i].Time.Minute == minutes)
+                            if (departuredFlights[i].Time.Hour == hours && departuredFlights[i].Time.Minute == minutes)
                             {
                                 tmp++;
                                 PrintDepartures(i);
@@ -595,30 +550,18 @@ namespace Airport
                         Console.WriteLine();
 
                         // Print matching flights.
-                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        for (int i = 0; i < arrivedFlights.Length; i++)
                         {
-                            if (ArrivedFlight()[i].CityFrom == updatedCity | ArrivedFlight()[i].CityTo == updatedCity)
-                            {
-                                tmp++;
-                                PrintArrivals(i);
-                            }
-
-                            if (editArrived[i].CityFrom == updatedCity | editArrived[i].CityTo == updatedCity)
+                            if (arrivedFlights[i].CityFrom == updatedCity | arrivedFlights[i].CityTo == updatedCity)
                             {
                                 tmp++;
                                 PrintArrivals(i);
                             }
                         }
 
-                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        for (int i = 0; i < departuredFlights.Length; i++)
                         {
-                            if (DeparturedFlight()[i].CityFrom == updatedCity | DeparturedFlight()[i].CityTo == updatedCity)
-                            {
-                                tmp++;
-                                PrintDepartures(i);
-                            }
-
-                            if (editDepartured[i].CityFrom == updatedCity | editDepartured[i].CityTo == updatedCity)
+                            if (departuredFlights[i].CityFrom == updatedCity | departuredFlights[i].CityTo == updatedCity)
                             {
                                 tmp++;
                                 PrintDepartures(i);
@@ -635,31 +578,18 @@ namespace Airport
                         Console.WriteLine("\nFlights in this hour: ");
 
                         // Print arrival flights.
-                        for (int i = 0; i < ArrivedFlight().Length; i++)
+                        for (int i = 0; i < arrivedFlights.Length; i++)
                         {
-                            if (GetActualTime() > ArrivedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < ArrivedFlight()[i].Time.AddMinutes(30))
+                            if (GetActualTime() > arrivedFlights[i].Time.AddMinutes(-30) & GetActualTime() < arrivedFlights[i].Time.AddMinutes(30))
                             {
                                 tmp++;
                                 PrintArrivals(i);
                             }
-
-                            if (GetActualTime() > editArrived[i].Time.AddMinutes(-30) & GetActualTime() < editArrived[i].Time.AddMinutes(30))
-                            {
-                                tmp++;
-                                PrintArrivals(i);
-                            }
-
                         }
                         // Print departured flights.
-                        for (int i = 0; i < DeparturedFlight().Length; i++)
+                        for (int i = 0; i < departuredFlights.Length; i++)
                         {
-                            if (GetActualTime() > DeparturedFlight()[i].Time.AddMinutes(-30) & GetActualTime() < DeparturedFlight()[i].Time.AddMinutes(30))
-                            {
-                                tmp++;
-                                PrintDepartures(i);
-                            }
-
-                            if (GetActualTime() > editDepartured[i].Time.AddMinutes(-30) & GetActualTime() < editDepartured[i].Time.AddMinutes(30))
+                            if (GetActualTime() > departuredFlights[i].Time.AddMinutes(-30) & GetActualTime() < departuredFlights[i].Time.AddMinutes(30))
                             {
                                 tmp++;
                                 PrintDepartures(i);
@@ -687,79 +617,31 @@ namespace Airport
         #endregion
 
         /// <summary>
-        /// Set flight info for edited and canceled flights and print flight info about arrived flights.
+        /// Print flight info about arrived flights.
         /// </summary>
         static void PrintArrivals(int i)
         {
-            canceledStatus = null;
-            updatedStatus = null;
-
-            // Assign values to fields for edited flights.
-            if (editArrived[i].Status != null)
-            {
-                updatedTime = editArrived[i].Time;
-                updatedCityFrom = editArrived[i].CityFrom;
-                updatedCityTo = editArrived[i].CityTo;
-                updatedTerminal = editArrived[i].Terminal;
-                updatedAirline = editArrived[i].Airline;
-                updatedNumber = editArrived[i].Number;
-                updatedStatus = editArrived[i].Status;
-            }
-
-            // Assign the status for canceled flights.
-            if (canceledArrived[i].HasValue)
-            {
-                canceledStatus = FlightStatus.Canceled;
-            }
-
-            // Print flight information depending on edited and canceled flight.
-            if (updatedStatus == FlightStatus.ExpectedAt & canceledStatus == null)
-                Console.WriteLine(ArrivedFlight()[i] + $": {updatedTime};");
-            else if (ArrivedFlight()[i].Status == FlightStatus.ExpectedAt & updatedStatus == null)
-                Console.WriteLine(ArrivedFlight()[i] + $": {ArrivedFlight()[i].Time};");
+            if (arrivedFlights[i].Status == FlightStatus.ExpectedAt)
+                Console.WriteLine(arrivedFlights[i] + $": {arrivedFlights[i].Time};");
             else
-                Console.WriteLine(ArrivedFlight()[i]);
+                Console.WriteLine(arrivedFlights[i]);
         }
 
         /// <summary>
-        /// Define the status of departured fligths and print flight information.
+        /// Print flight info about departured flights.
         /// </summary>
         static void PrintDepartures(int i)
         {
-            canceledStatus = null;
-            updatedStatus = null;
-
-            // Assign values to fields for edited flights.
-            if (editDepartured[i].CityFrom != null)
-            {
-                updatedTime = editDepartured[i].Time;
-                updatedCityFrom = editDepartured[i].CityFrom;
-                updatedCityTo = editDepartured[i].CityTo;
-                updatedTerminal = editDepartured[i].Terminal;
-                updatedAirline = editDepartured[i].Airline;
-                updatedNumber = editDepartured[i].Number;
-                updatedStatus = editDepartured[i].Status;
-            }
-
-            // Assign the status for canceled flights.
-            if (canceledDepartured[i].HasValue)
-            {
-                canceledStatus = FlightStatus.Canceled;
-            }
-
-            if (updatedStatus == FlightStatus.DeparturedAt & canceledStatus == null)
-                Console.WriteLine(DeparturedFlight()[i] + $": {updatedTime};");
-            else if (DeparturedFlight()[i].Status == FlightStatus.DeparturedAt & updatedStatus == null)
-                Console.WriteLine(DeparturedFlight()[i] + $": {DeparturedFlight()[i].Time};");
+            if (departuredFlights[i].Status == FlightStatus.DeparturedAt)
+                Console.WriteLine(departuredFlights[i] + $": {departuredFlights[i].Time};");
             else
-                Console.WriteLine(DeparturedFlight()[i]);
+                Console.WriteLine(departuredFlights[i]);
         }
 
         /// <summary>
-        /// Initialize an array of arrival Flights
+        /// Initialize an array of arrived Flights
         /// </summary>
-        /// <returns>an array of Flight</returns>
-        static Flight[] ArrivedFlight()
+        static void ArrivedFlightsInitialization()
         {
             #region Arrived flights
 
@@ -959,18 +841,17 @@ namespace Airport
             #endregion
 
             // Declare an arrow of arrivals.
-            Flight[] arrivedFlight = new Flight[] { beijing, almaty, telAviv, amsterdam, antalya, barcelona, london,
+            Flight[] arrivals = new Flight[] { beijing, almaty, telAviv, amsterdam, antalya, barcelona, london,
                 zaporizhia, yerevan, baku, tbilisi, kutaisi, dnipropetrovsk, kharkiv, istanbul, minsk, dubai, teheran,
                 larnaca, venezia, chisinau };
 
-            return arrivedFlight;
+            arrivedFlights = arrivals;
         }
 
         /// <summary>
         /// Initialize an array of departured Flights
         /// </summary>
-        /// <returns>an array of Flight</returns>
-        static Flight[] DeparturedFlight()
+        static void DeparturedFlightsInitialization()
         {
             #region Departured flights
 
@@ -1170,11 +1051,11 @@ namespace Airport
             #endregion
 
             // Declare an arrow of departures.
-            Flight[] departuredFlight = new Flight[] {chisinau, beijing, almaty, telAviv, amsterdam, antalya, barcelona,
+            Flight[] departures = new Flight[] {chisinau, beijing, almaty, telAviv, amsterdam, antalya, barcelona,
                 london, zaporizhia, yerevan, baku, tbilisi, kutaisi, dnipropetrovsk, kharkiv, istanbul, minsk, dubai, teheran,
                 larnaca, venezia };
 
-            return departuredFlight;
+            departuredFlights = departures;
         }
 
         /// <summary>
